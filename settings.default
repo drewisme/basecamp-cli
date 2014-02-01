@@ -1,2 +1,2 @@
-BASECAMP_API_URL = ""
+BASECAMP_API_URL = "https://sidestudios.basecamphq.com"
 BASECAMP_API_KEY = ""
