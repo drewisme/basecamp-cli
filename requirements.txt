@@ -1,0 +1,5 @@
+basecamp==0.0.12
+cement==2.2.0
+elementtree==1.2.6-20050316
+requests==2.2.1
+wsgiref==0.1.2
