@@ -23,6 +23,11 @@ python main.py projects
 #...
 ```
 
+Maybe you have an idea of the project name and want to filter the list
+```bash
+python main.py projects | grep Side
+```
+
 Once you found your project id run the following to add a time entry
 ```bash
 python main.py time -p=12345 -d="Gettin' work done" -t=3.0
