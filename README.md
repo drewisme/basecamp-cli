@@ -10,5 +10,26 @@ Tired of udpating your hours through the Basecamp site? Well sir, this might hel
 4. Copy default settings file `cp settings.default settings.py`
 5. Log into Basecamp, click "My Info" and then under Authentication tokens click "Show your tokens". Copy the token under "Token for feed readers or the Basecamp API" and update `BASECAMP_API_KEY` in settings.py
 
-### Create Virtual Environment
+## Usage
 
+To see a list of available commands and arguments
+```bash
+python main.py --help
+```
+
+Get a list of projects
+```bash
+python main.py projects
+#...
+#id: Name
+#...
+```
+
+Once you found your project id run the following to add a time entry
+```bash
+python main.py time -p=12345 -d="Gettin' work done" -t=3.0
+```
+or if you want a date other than today
+```bash
+python main.py time -p=12345 -d="Gettin' work done" -t=3.0 -date="2014-01-30"
+```
