@@ -17,7 +17,6 @@ except:
     print("Can't find ya bro. Check your api key.")
     quit()
 
-
 class BasecampController(controller.CementBaseController):
     class Meta:
         label = 'base'
@@ -26,10 +25,10 @@ class BasecampController(controller.CementBaseController):
         config_defaults = dict()
 
         arguments = [
-            (['-d', '--description'], dict(action='store', help='Time entry description')),
+            (['-m', '--message'], dict(action='store', help='Time entry message')),
             (['-t', '--hours'], dict(action='store', help='Time entry hours')),
             (['-p', '--project'], dict(action='store', help='Time entry project')),
-            (['-date'], dict(action='store', help='Time entry date')),
+            (['-d', '--date'], dict(action='store', help='Time entry date')),
         ]
 
     @controller.expose(help="get a list of projects")
@@ -48,13 +47,13 @@ class BasecampController(controller.CementBaseController):
     def time(self):
         if not app.pargs.date:
             app.pargs.date = date.today().strftime("%y-%m-%d")
-        if app.pargs.description and app.pargs.hours and app.pargs.project:
+        if app.pargs.message and app.pargs.hours and app.pargs.project:
             try:
-                bc.create_time_entry(app.pargs.description, float(app.pargs.hours), int(me['id']), entry_date=(app.pargs.date or None), project_id=int(app.pargs.project))
+                bc.create_time_entry(app.pargs.message, float(app.pargs.hours), int(me['id']), entry_date=(app.pargs.date or None), project_id=int(app.pargs.project))
             except:
                 print(bc.last_error)
         else:
-            print('I need a project_id, description and hours (-p=PROJECTID -d="My description" -t=1.0 [-date=2014-01-01])')
+            print('Hey! I need a project_id, message and hours. (-p=PROJECTID -m="My message" -t=1.0 [-d=2014-01-01])')
 
 
 class BasecampApp(foundation.CementApp):
