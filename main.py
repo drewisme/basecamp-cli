@@ -17,6 +17,7 @@ except:
     print("Can't find ya bro. Check your api key.")
     quit()
 
+
 class BasecampController(controller.CementBaseController):
     class Meta:
         label = 'base'
@@ -46,10 +47,11 @@ class BasecampController(controller.CementBaseController):
     @controller.expose(help="create time entry")
     def time(self):
         if not app.pargs.date:
-            app.pargs.date = date.today().strftime("%y-%m-%d")
+            app.pargs.date = date.today().strftime("%Y-%m-%d")
         if app.pargs.message and app.pargs.hours and app.pargs.project:
             try:
                 bc.create_time_entry(app.pargs.message, float(app.pargs.hours), int(me['id']), entry_date=(app.pargs.date or None), project_id=int(app.pargs.project))
+                print('{} hours added to {} on {}'.format(app.pargs.hours, app.pargs.project, app.pargs.date))
             except:
                 print(bc.last_error)
         else:
