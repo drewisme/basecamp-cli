@@ -30,7 +30,7 @@ python main.py projects | grep Side
 
 Once you found your project id run the following to add a time entry
 ```bash
-python main.py time -n 12345 -m "Gettin' work done" -t 1.0
+python main.py time -p 12345 -m "Gettin' work done" -t 1.0
 ```
 or use `-n` for project name
 ```bash
