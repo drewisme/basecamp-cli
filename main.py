@@ -1,6 +1,7 @@
 from basecamp import Basecamp
 from cement.core import foundation, controller
 from datetime import date
+import json
 import elementtree.ElementTree as ET
 
 from settings import *
@@ -30,6 +31,7 @@ class BasecampController(controller.CementBaseController):
             (['-t', '--hours'], dict(action='store', help='Time entry hours')),
             (['-p', '--project'], dict(action='store', help='Time entry project')),
             (['-d', '--date'], dict(action='store', help='Time entry date')),
+            (['-n', '--project-name'], dict(action='store', help='Time entry project by name')),
         ]
 
     @controller.expose(help="get a list of projects")
@@ -44,8 +46,20 @@ class BasecampController(controller.CementBaseController):
         for project in sorted(output):
             print("{0}: {1}".format(output[project], project))
 
+        # Save the list of projects to file
+        with open('projects.json', 'w') as project_file:
+            json.dump(output, project_file)
+
     @controller.expose(help="create time entry")
     def time(self):
+        if app.pargs.project_name:
+            project = self.project_name(app.pargs.project_name)
+            if len(project) == 1:
+                app.pargs.project = project.values()[0]
+            elif len(project) > 1:
+                print('Too many projects found for the project "{}": {}'.format(app.pargs.project_name, ', '.join(project.keys())))
+            else:
+                print('No projects found for "{}"'.format(app.pargs.project_name))
         if not app.pargs.date:
             app.pargs.date = date.today().strftime("%Y-%m-%d")
         if app.pargs.message and app.pargs.hours and app.pargs.project:
@@ -56,6 +70,23 @@ class BasecampController(controller.CementBaseController):
                 print(bc.last_error)
         else:
             print('Hey! I need a project_id, message and hours. (-p=PROJECTID -m="My message" -t=1.0 [-d=2014-01-01])')
+
+    def project_name(self, name):
+        "Lookup a project id by it's name"
+        name = name.lower()
+        try:
+            with open('projects.json') as project_file:
+                project_names = json.load(project_file)
+        except IOError:
+            print('No projects saved yet. Run projects command first')
+            return {}
+
+        matches = {}
+        for project_name in project_names:
+            if name in project_name.lower():
+                matches[project_name] = project_names[project_name]
+
+        return matches
 
 
 class BasecampApp(foundation.CementApp):
