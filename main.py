@@ -52,6 +52,14 @@ class BasecampController(controller.CementBaseController):
 
     @controller.expose(help="create time entry")
     def time(self):
+        # If no project name, enter prompt mode
+        prompt_mode = not app.pargs.project_name
+
+        # Project name
+        if prompt_mode:
+            app.pargs.project_name = raw_input('Project Name: ')
+
+        # Try to look project up by name then id
         if app.pargs.project_name:
             project = self.project_name(app.pargs.project_name)
             if len(project) == 1:
@@ -60,8 +68,24 @@ class BasecampController(controller.CementBaseController):
                 print('Too many projects found for the project "{}": {}'.format(app.pargs.project_name, ', '.join(project.keys())))
             else:
                 print('No projects found for "{}"'.format(app.pargs.project_name))
+
+        # Entry message
+        if prompt_mode and not app.pargs.message:
+            app.pargs.message = raw_input('Message: ')
+
+        # Entry hours
+        if prompt_mode and not app.pargs.hours:
+            app.pargs.hours = raw_input('Hours (eg. 1.5): ')
+
+        # Entry date
+        today = date.today().strftime("%Y-%m-%d")
+        if prompt_mode and not app.pargs.date:
+            app.pargs.date = raw_input('Date ({}): '.format(today))
+
+        # No date, use today as default
         if not app.pargs.date:
-            app.pargs.date = date.today().strftime("%Y-%m-%d")
+            app.pargs.date = today
+
         if app.pargs.message and app.pargs.hours and app.pargs.project:
             try:
                 bc.create_time_entry(app.pargs.message, float(app.pargs.hours), int(me['id']), entry_date=(app.pargs.date or None), project_id=int(app.pargs.project))
