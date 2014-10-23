@@ -1,8 +1,11 @@
-from basecamp import Basecamp
-from cement.core import foundation, controller
 from datetime import date
 import json
+
+from basecamp import Basecamp
+from cement.core import foundation, controller
+from cement.core.exc import InterfaceError, CaughtSignal
 import elementtree.ElementTree as ET
+from termcolor import colored
 
 from settings import *
 
@@ -13,9 +16,9 @@ try:
     me = {}
     me['id'] = me_tree.find('id').text
     me['name'] = "{0} {1}".format(me_tree.find('first-name').text, me_tree.find('last-name').text)
-    print("Hi {0}!".format(me['name']))
+    print(colored("Hi {0}!".format(me['name']), 'yellow'))
 except:
-    print("Can't find ya bro. Check your api key.")
+    print(colored("Can't find ya bro. Check your api key.", 'red'))
     quit()
 
 
@@ -44,7 +47,7 @@ class BasecampController(controller.CementBaseController):
             output[project.find("name").text] = project.find("id").text
 
         for project in sorted(output):
-            print("{0}: {1}".format(output[project], project))
+            print(colored("{0}: {1}".format(output[project], project), 'green'))
 
         # Save the list of projects to file
         with open('projects.json', 'w') as project_file:
@@ -65,9 +68,9 @@ class BasecampController(controller.CementBaseController):
             if len(project) == 1:
                 app.pargs.project = project.values()[0]
             elif len(project) > 1:
-                print('Too many projects found for the project "{}": {}'.format(app.pargs.project_name, ', '.join(project.keys())))
+                raise InterfaceError('Too many projects found for the project "{}": {}'.format(app.pargs.project_name, ', '.join(project.keys())))
             else:
-                print('No projects found for "{}"'.format(app.pargs.project_name))
+                raise InterfaceError('No projects found for "{}"'.format(app.pargs.project_name))
 
         # Entry message
         if prompt_mode and not app.pargs.message:
@@ -89,11 +92,11 @@ class BasecampController(controller.CementBaseController):
         if app.pargs.message and app.pargs.hours and app.pargs.project:
             try:
                 bc.create_time_entry(app.pargs.message, float(app.pargs.hours), int(me['id']), entry_date=(app.pargs.date or None), project_id=int(app.pargs.project))
-                print('{} hours added to {} on {}'.format(app.pargs.hours, app.pargs.project, app.pargs.date))
+                print(colored('{} hours added to {} on {}'.format(app.pargs.hours, app.pargs.project, app.pargs.date), 'green'))
             except:
-                print(bc.last_error)
+                raise InterfaceError(bc.last_error)
         else:
-            print('Hey! I need a project_id, message and hours. (-p=PROJECTID -m="My message" -t=1.0 [-d=2014-01-01])')
+            raise InterfaceError('No projects saved yet. Run projects command first')
 
     def project_name(self, name):
         "Lookup a project id by it's name"
@@ -102,7 +105,7 @@ class BasecampController(controller.CementBaseController):
             with open('projects.json') as project_file:
                 project_names = json.load(project_file)
         except IOError:
-            print('No projects saved yet. Run projects command first')
+            raise InterfaceError('No projects saved yet. Run projects command first')
             return {}
 
         matches = {}
@@ -127,6 +130,10 @@ try:
 
     # run the application
     app.run()
+except InterfaceError as exc:
+    print(colored(exc, 'red'))
+except CaughtSignal as exc:
+    print(colored('See ya later!', 'yellow'))
 finally:
     # close the app
     app.close()
