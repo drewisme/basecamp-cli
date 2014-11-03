@@ -92,7 +92,7 @@ class BasecampController(controller.CementBaseController):
         if app.pargs.message and app.pargs.hours and app.pargs.project:
             try:
                 bc.create_time_entry(app.pargs.message, float(app.pargs.hours), int(me['id']), entry_date=(app.pargs.date or None), project_id=int(app.pargs.project))
-                print(colored('{} hours added to {} on {}'.format(app.pargs.hours, app.pargs.project, app.pargs.date), 'green'))
+                print(colored('{} hour{} added to {} on {}'.format(app.pargs.hours, 's' if app.pargs.hours > 1 else '', app.pargs.project, app.pargs.date), 'green'))
             except:
                 raise InterfaceError(bc.last_error)
         else:
@@ -106,7 +106,6 @@ class BasecampController(controller.CementBaseController):
                 project_names = json.load(project_file)
         except IOError:
             raise InterfaceError('No projects saved yet. Run projects command first')
-            return {}
 
         matches = {}
         for project_name in project_names:
